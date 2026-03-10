@@ -1,7 +1,3 @@
-<<<<<<< Updated upstream
-# coreflow-booking-api
-Middleware Layer: Django REST API for Pilates class scheduling and user management.
-=======
 # Pilates Studio Booking System - REST API & Database
 
 ## 1. Project Overview
@@ -28,10 +24,9 @@ This repository contains the middleware REST API and backend database schema for
 
 ## 6. Deployment & CI/CD
 * The API and database will be deployed using Render.
-* Deployment practices include the secure handling of environment variables (e.g., database credentials, secret keys) and evidence of CI/CD pipeline integration. 
+* Deployment practices include the secure handling of environment variables (e.g., database credentials, secret keys) and evidence of CI/CD pipeline integration.
 * The database is configured to remain active and accessible for at least three weeks post-submission.
 
 ## 7. AI Usage Acknowledgement
 *(Note to Developer: Update this section before final submission)*
 This module is classified as Yellow under institutional AI guidance. AI tools were utilized for drafting docstrings, generating initial test cases, and debugging complex Django ORM queries. All generated code was manually reviewed, refined, and tested to ensure a complete understanding of the underlying architecture.
->>>>>>> Stashed changes
