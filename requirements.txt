@@ -8,3 +8,13 @@ pytest==8.0.2
 pytest-django==4.8.0
 drf-yasg==1.21.7
 setuptools<81
+
+# Production / Deployment
+gunicorn==22.0.0
+whitenoise==6.7.0
+dj-database-url==2.2.0
+
+# External Integrations
+django-sendgrid-v5==1.2.3
+django-cloudinary-storage==0.3.0
+cloudinary==1.40.0
