@@ -138,7 +138,7 @@ class BookingViewSet(viewsets.ModelViewSet):
             ),
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[booking.user.email],
-            fail_silently=True,
+            fail_silently=False,
         )
 
     @action(detail=True, methods=['post'])
