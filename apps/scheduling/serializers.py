@@ -1,6 +1,9 @@
 from rest_framework import serializers
+from django.contrib.auth import get_user_model
 from django.utils import timezone
 from .models import PilatesClass, Booking
+
+User = get_user_model()
 
 
 class InstructorSerializer(serializers.ModelSerializer):
@@ -9,18 +12,23 @@ class InstructorSerializer(serializers.ModelSerializer):
     full_name = serializers.CharField(source='get_full_name', read_only=True)
 
     class Meta:
-        from django.contrib.auth import get_user_model
-        model = get_user_model()
+        model = User
         fields = ('id', 'email', 'first_name', 'last_name', 'full_name')
         read_only_fields = fields
+
+
+class InstructorPrimaryKeyField(serializers.PrimaryKeyRelatedField):
+    """Lazy queryset field that filters to instructors only."""
+
+    def get_queryset(self):
+        return User.objects.filter(is_instructor=True)
 
 
 class PilatesClassSerializer(serializers.ModelSerializer):
     """Serializer for PilatesClass model."""
 
     instructor = InstructorSerializer(read_only=True)
-    instructor_id = serializers.PrimaryKeyRelatedField(
-        queryset=None,
+    instructor_id = InstructorPrimaryKeyField(
         source='instructor',
         write_only=True
     )
@@ -37,14 +45,6 @@ class PilatesClassSerializer(serializers.ModelSerializer):
             'created_at', 'updated_at'
         )
         read_only_fields = ('id', 'created_at', 'updated_at')
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Set queryset for instructor_id dynamically to include only instructors
-        if 'instructor_id' in self.fields:
-            from django.contrib.auth import get_user_model
-            User = get_user_model()
-            self.fields['instructor_id'].queryset = User.objects.filter(is_instructor=True)
 
     def get_can_book(self, obj):
         """Check if the class can be booked."""
