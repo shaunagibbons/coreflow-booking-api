@@ -1,13 +1,18 @@
 from rest_framework import viewsets, status, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth import get_user_model
+from django.contrib.auth.forms import PasswordResetForm
+from django.conf import settings
 from .serializers import (
     UserSerializer,
     UserCreateSerializer,
     UserUpdateSerializer,
-    ChangePasswordSerializer
+    ChangePasswordSerializer,
+    PasswordResetRequestSerializer,
+    PasswordResetConfirmSerializer,
 )
 
 User = get_user_model()
@@ -82,5 +87,53 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
 
         return Response(
             {'detail': 'Password changed successfully.'},
+            status=status.HTTP_200_OK
+        )
+
+
+class PasswordResetRequestView(APIView):
+    """Request a password reset email."""
+
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        serializer = PasswordResetRequestSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        email = serializer.validated_data['email']
+        form = PasswordResetForm(data={'email': email})
+
+        if form.is_valid():
+            form.save(
+                request=request,
+                use_https=request.is_secure(),
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                extra_email_context={
+                    'frontend_url': settings.FRONTEND_URL,
+                },
+            )
+
+        # Always return 200 to not reveal whether email exists
+        return Response(
+            {'detail': 'If an account exists with that email, a password reset link has been sent.'},
+            status=status.HTTP_200_OK
+        )
+
+
+class PasswordResetConfirmView(APIView):
+    """Confirm password reset with token and set new password."""
+
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        serializer = PasswordResetConfirmSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        user = serializer.validated_data['user']
+        user.set_password(serializer.validated_data['new_password'])
+        user.save()
+
+        return Response(
+            {'detail': 'Password has been reset successfully.'},
             status=status.HTTP_200_OK
         )
