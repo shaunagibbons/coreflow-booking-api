@@ -1,5 +1,6 @@
 import pytest
 from django.urls import reverse
+from django.utils import timezone
 from rest_framework import status
 from datetime import date, time, timedelta
 from apps.scheduling.models import PilatesClass, Booking
@@ -64,7 +65,7 @@ class TestBookingEndpoints:
             status='confirmed'
         )
 
-        # Create past class and booking
+        # Create past class and booking (bypass validation for test data)
         past_class = PilatesClass.objects.create(
             title='Past Class',
             instructor=instructor,
@@ -74,11 +75,14 @@ class TestBookingEndpoints:
             max_capacity=10,
             location='Studio A'
         )
-        Booking.objects.create(
+        past_booking = Booking(
             user=user,
             pilates_class=past_class,
-            status='confirmed'
+            status='confirmed',
+            booked_at=timezone.now() - timedelta(days=7),
+            updated_at=timezone.now() - timedelta(days=7),
         )
+        past_booking.save_base(raw=True)
 
         url = reverse('booking-upcoming')
         response = authenticated_client.get(url)
