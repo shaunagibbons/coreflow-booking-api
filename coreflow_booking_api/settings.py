@@ -191,7 +191,7 @@ CORS_ALLOW_HEADERS = [
 EMAIL_BACKEND = 'sendgrid_backend.SendgridBackend'
 SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY', '')
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'noreply@coreflow.com')
-SENDGRID_SANDBOX_MODE_IN_DEBUG = True
+SENDGRID_SANDBOX_MODE_IN_DEBUG = False
 
 # Frontend URL (for password reset email links)
 FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:5173')
