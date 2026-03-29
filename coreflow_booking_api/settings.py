@@ -196,6 +196,21 @@ SENDGRID_SANDBOX_MODE_IN_DEBUG = False
 # Frontend URL (for password reset email links)
 FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:5173')
 
+# Logging
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+}
+
 # Swagger Settings
 SWAGGER_SETTINGS = {
     'SECURITY_DEFINITIONS': {
