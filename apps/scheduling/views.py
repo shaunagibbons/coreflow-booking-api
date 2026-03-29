@@ -1,6 +1,8 @@
 from rest_framework import viewsets, status, permissions, filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from django.core.mail import send_mail
+from django.conf import settings
 from django.utils import timezone
 from .models import PilatesClass, Booking
 from .serializers import (
@@ -120,8 +122,23 @@ class BookingViewSet(viewsets.ModelViewSet):
         return self.queryset.filter(user=self.request.user)
 
     def perform_create(self, serializer):
-        """Create booking for the authenticated user."""
-        serializer.save(user=self.request.user)
+        """Create booking for the authenticated user and send confirmation email."""
+        booking = serializer.save(user=self.request.user)
+        send_mail(
+            subject=f'Booking Confirmed: {booking.pilates_class.title}',
+            message=(
+                f'Hi {booking.user.first_name},\n\n'
+                f'Your booking for {booking.pilates_class.title} on '
+                f'{booking.pilates_class.date} at {booking.pilates_class.start_time} '
+                f'has been confirmed.\n\n'
+                f'Location: {booking.pilates_class.location}\n'
+                f'Instructor: {booking.pilates_class.instructor.get_full_name()}\n\n'
+                f'Thank you,\nCoreflow Pilates'
+            ),
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[booking.user.email],
+            fail_silently=True,
+        )
 
     @action(detail=True, methods=['post'])
     def cancel(self, request, pk=None):
