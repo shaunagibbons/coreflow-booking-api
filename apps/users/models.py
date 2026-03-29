@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
+from cloudinary.models import CloudinaryField
 
 
 class UserManager(BaseUserManager):
@@ -39,6 +40,7 @@ class User(AbstractUser):
         default=False,
         help_text='Designates whether this user can create and manage classes.'
     )
+    profile_image = CloudinaryField('image', blank=True, null=True)
 
     objects = UserManager()
 

@@ -9,11 +9,20 @@ class UserSerializer(serializers.ModelSerializer):
     """Serializer for User model (read operations)."""
 
     full_name = serializers.CharField(source='get_full_name', read_only=True)
+    profile_image_url = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ('id', 'email', 'first_name', 'last_name', 'full_name', 'phone_number', 'is_instructor', 'date_joined')
+        fields = (
+            'id', 'email', 'first_name', 'last_name', 'full_name',
+            'phone_number', 'is_instructor', 'date_joined', 'profile_image_url'
+        )
         read_only_fields = ('id', 'date_joined', 'is_instructor')
+
+    def get_profile_image_url(self, obj):
+        if obj.profile_image:
+            return obj.profile_image.url
+        return None
 
 
 class UserCreateSerializer(serializers.ModelSerializer):
@@ -55,7 +64,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('first_name', 'last_name', 'phone_number')
+        fields = ('first_name', 'last_name', 'phone_number', 'profile_image')
 
 
 class ChangePasswordSerializer(serializers.Serializer):
