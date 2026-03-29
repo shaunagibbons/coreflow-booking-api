@@ -21,8 +21,9 @@ class IsInstructorOrReadOnly(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return request.user and request.user.is_authenticated
 
-        # Write permissions only for instructors or staff
-        return request.user and (request.user.is_instructor or request.user.is_staff)
+        # Write permissions only for authenticated instructors or staff
+        return (request.user and request.user.is_authenticated
+                and (request.user.is_instructor or request.user.is_staff))
 
     def has_object_permission(self, request, view, obj):
         # Read permissions are allowed for authenticated users
