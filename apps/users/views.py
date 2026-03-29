@@ -1,3 +1,4 @@
+import logging
 from rest_framework import viewsets, status, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -6,6 +7,8 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import PasswordResetForm
 from django.conf import settings
+
+logger = logging.getLogger(__name__)
 from .serializers import (
     UserSerializer,
     UserCreateSerializer,
@@ -104,14 +107,21 @@ class PasswordResetRequestView(APIView):
         form = PasswordResetForm(data={'email': email})
 
         if form.is_valid():
-            form.save(
-                request=request,
-                use_https=request.is_secure(),
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                extra_email_context={
-                    'frontend_url': settings.FRONTEND_URL,
-                },
-            )
+            logger.info(f"Password reset requested for email: {email}")
+            try:
+                form.save(
+                    request=request,
+                    use_https=True,
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    extra_email_context={
+                        'frontend_url': settings.FRONTEND_URL,
+                    },
+                )
+                logger.info("Password reset email sent successfully")
+            except Exception as e:
+                logger.error(f"Failed to send password reset email: {e}")
+        else:
+            logger.warning(f"Password reset form invalid for email: {email}")
 
         # Always return 200 to not reveal whether email exists
         return Response(
